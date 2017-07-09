@@ -64,8 +64,6 @@ void Quadtree::Split()
 	nodes[3] = new Quadtree(level + 1, RECT(x + subWidth, y, subWidth, subHeight));
 
 	isSplit = true;
-
-	std::cout << "Splitting" << std::endl;
 }
 
 

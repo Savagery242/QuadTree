@@ -5,17 +5,24 @@
 #include "quadtree.h"
 #include "entity.h"
 #include <vector>
+#include <cstdlib>
 
-bool gameOn;
+#define NUM_ENTITIES 80
+
+POINT GetRandomPoint(RECT bounds);
+double GetRandomDouble(double min, double max);
+double GetRandomDouble();
 
 int main(void)
 {
+	bool gameOn = true;
+
 	std::vector<LINE> lines;
+	std::srand(1084);
 
-	Window window (640, 480);
+	Window window (640, 640);
 	Quadtree quadTree(0, RECT(0, 0, 1, 1));
-
-	gameOn = true;
+	Entity entities[NUM_ENTITIES];
 
 	// Initialization
 	if (!window.Create())
@@ -24,46 +31,48 @@ int main(void)
 		return -1;
 	}
 
-	Entity e1(POINT(0.1, 0.4));
-	Entity e2(POINT(0.5, 0.9));
-	Entity e3(POINT(0.9, 0.1));
-	Entity e4(POINT(0.1, 0.9));
-	Entity e5(POINT(0.3, 0.6));
-	Entity e6(POINT(0.3, 0.54));
-	Entity e7(POINT(0.3, 0.53));
-	Entity e8(POINT(0.3, 0.52));
-	Entity e9(POINT(0.3, 0.51));
+	RECT bounds(0, 0, 1, 1);
 
-	quadTree.Insert(e1);
-	quadTree.Insert(e2);
-	quadTree.Insert(e3);
-	quadTree.Insert(e4);
-	quadTree.Insert(e5);
-	quadTree.Insert(e6);
-	quadTree.Insert(e7);
-	quadTree.Insert(e8);
-	quadTree.Insert(e9);
+	for (int i = 0; i < NUM_ENTITIES; ++i)
+	{
+		entities[i] = Entity(GetRandomPoint(bounds));
+		quadTree.Insert(entities[i]);
+	}
 
 	quadTree.GetLines(lines);
 
 	// Game Loop
 	while (gameOn)
 	{
-		//POINT a(-0.5,  0.5);
-		//POINT b(-0.5, -0.5);
-		//window.DrawLine(a, b);
-		//window.DrawLine(0,0,0.5,0.5);
-
+		// Draw Quad Tree Grid
 		typedef std::vector<LINE>::iterator iter;
-		for (iter i = lines.begin(); i != lines.end(); ++i)
-		{
-			window.DrawLine(*i);
-		}
+		for (iter i = lines.begin(); i != lines.end(); ++i)		
+			window.DrawLine(*i);		
+
+		// Draw Entity Markers
+		for (int i = 0; i < NUM_ENTITIES; ++i)		
+			window.DrawCircle(entities[i].location, 0.01);		
 
 		gameOn = window.Update();
 	}
 
 	quadTree.Clear();
-
 	return 0;
+}
+
+POINT GetRandomPoint(RECT bounds)
+{
+	double x = GetRandomDouble(bounds.x, bounds.x + bounds.width);
+	double y = GetRandomDouble(bounds.y, bounds.y + bounds.height);
+	return POINT(x, y);
+}
+
+double GetRandomDouble(double min, double max)
+{
+	return min + GetRandomDouble() * (max - min);
+}
+
+double GetRandomDouble()
+{
+	return (double)std::rand() / RAND_MAX;
 }
